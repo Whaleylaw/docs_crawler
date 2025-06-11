@@ -12,12 +12,13 @@ from typing import List, Optional
 from components.ui_components import create_progress_indicator, display_crawl_status
 from components.supabase_integration import get_supabase_integration, get_project_list
 from components.crawling_engine import get_crawling_engine, CrawlStatus, URLProcessor
+from components.rag_strategies import RAGStrategySelector, RAGConfiguration, RAGStrategy
 
 def show():
     """Display the crawl content page"""
     
     st.header("🕷️ Crawl Content")
-    st.markdown("Configure and execute web crawling operations")
+    st.markdown("Configure and execute web crawling operations with advanced RAG processing")
     
     # Get available projects
     projects = get_project_list()
@@ -164,6 +165,23 @@ def show():
                 else:
                     st.info(f"🌐 {count} webpage(s)")
     
+    # RAG Strategy Selection
+    st.markdown("---")
+    rag_config = RAGStrategySelector.render_strategy_selection()
+    
+    # Show preview if enabled
+    preview_samples = []
+    if rag_config.preview_mode and urls_to_crawl:
+        st.markdown("---")
+        st.subheader("👁️ Preview Mode")
+        
+        if st.button("🔍 Generate Preview", help="Preview how your content will be processed"):
+            with st.spinner("Generating preview samples..."):
+                preview_samples = generate_content_preview(urls_to_crawl[:3], rag_config)
+                
+            if preview_samples:
+                display_preview_samples(preview_samples)
+    
     # Crawling configuration
     st.markdown("---")
     st.subheader("⚙️ Crawling Configuration")
@@ -197,24 +215,46 @@ def show():
         exclude_patterns = [p.strip() for p in exclude_patterns_text.split('\n') if p.strip()] if exclude_patterns_text else []
     
     with col3:
-        st.markdown("#### RAG Strategy")
-        rag_strategies = st.multiselect(
-            "Select RAG Strategies",
-            [
-                "vector_embeddings",
-                "contextual_embeddings", 
-                "hybrid_search",
-                "agentic_rag",
-                "cross_encoder_reranking"
-            ],
-            default=["vector_embeddings"],
-            help="Choose processing strategies for content"
-        )
+        st.markdown("#### Cost Estimation")
         
-        preview_mode = st.checkbox(
-            "Preview Mode",
-            help="Show sample chunks before full processing"
-        )
+        # Calculate estimated costs based on configuration
+        estimated_urls = len(urls_to_crawl)
+        if any(URLProcessor.detect_url_type(url) == "sitemap" for url in urls_to_crawl):
+            estimated_urls *= 20  # Rough estimate for sitemap expansion
+        
+        if max_depth > 1:
+            estimated_urls *= max_depth
+        
+        # OpenAI API cost estimation
+        openai_cost = 0
+        if RAGStrategy.CONTEXTUAL_EMBEDDINGS in rag_config.enabled_strategies:
+            openai_cost += estimated_urls * 0.02  # Rough estimate for context generation
+        if RAGStrategy.AGENTIC_RAG in rag_config.enabled_strategies:
+            openai_cost += estimated_urls * 0.01  # Rough estimate for code summarization
+        
+        embedding_cost = estimated_urls * 0.0001  # Embedding cost
+        
+        st.metric("Estimated URLs", f"{estimated_urls:,}")
+        st.metric("Est. OpenAI Cost", f"${openai_cost + embedding_cost:.2f}")
+        
+        if openai_cost > 5:
+            st.warning("⚠️ High cost estimate. Consider reducing scope.")
+        elif openai_cost > 0:
+            st.info("💡 AI features will incur OpenAI API costs")
+    
+    # Configuration summary
+    with st.expander("📋 Configuration Summary"):
+        RAGStrategySelector.display_strategy_summary(rag_config)
+        
+        st.markdown("#### Crawl Settings")
+        st.json({
+            "max_depth": max_depth,
+            "max_concurrent": max_concurrent,
+            "chunk_size": chunk_size,
+            "include_patterns": include_patterns,
+            "exclude_patterns": exclude_patterns,
+            "urls_count": len(urls_to_crawl)
+        })
     
     # Crawl execution
     st.markdown("---")
@@ -232,7 +272,18 @@ def show():
                     'chunk_size': chunk_size,
                     'include_patterns': include_patterns,
                     'exclude_patterns': exclude_patterns,
-                    'rag_strategies': rag_strategies
+                    'rag_strategies': [strategy.value for strategy in rag_config.enabled_strategies],
+                    'rag_config': {
+                        'embedding_model': rag_config.embedding_model,
+                        'context_model': rag_config.context_model,
+                        'max_context_tokens': rag_config.max_context_tokens,
+                        'min_code_length': rag_config.min_code_length,
+                        'parallel_workers': rag_config.parallel_workers,
+                        'preview_mode': rag_config.preview_mode,
+                        'preview_sample_size': rag_config.preview_sample_size,
+                        'batch_size': rag_config.batch_size,
+                        'max_retries': rag_config.max_retries
+                    }
                 }
                 execute_crawl(selected_project.project_id, urls_to_crawl, config)
             else:
@@ -255,6 +306,90 @@ def show():
     display_crawl_history(selected_project.project_id)
 
 
+def generate_content_preview(urls: List[str], rag_config: RAGConfiguration) -> List[dict]:
+    """Generate preview samples for content processing"""
+    
+    try:
+        from components.rag_strategies import get_rag_processor
+        
+        # Create a RAG processor with the configuration
+        rag_processor = get_rag_processor(rag_config)
+        
+        # Simple preview - just fetch first few URLs and show processing
+        preview_samples = []
+        
+        # Mock content for preview (in real implementation, would fetch actual content)
+        mock_contents = [
+            "# API Documentation\n\nThis is a comprehensive guide to our REST API.\n\n```python\nimport requests\n\nresponse = requests.get('https://api.example.com/data')\nprint(response.json())\n```",
+            "## Authentication\n\nUse JWT tokens for authentication.\n\n```javascript\nconst token = 'your-jwt-token';\nfetch('/api/data', {\n  headers: { 'Authorization': `Bearer ${token}` }\n})\n```",
+            "### Error Handling\n\nProper error handling is essential for robust applications.\n\n```python\ntry:\n    result = api_call()\nexcept APIError as e:\n    log.error(f'API call failed: {e}')\n```"
+        ]
+        
+        for i, (url, content) in enumerate(zip(urls[:3], mock_contents[:3])):
+            # Process content with RAG strategies
+            processed = rag_processor.process_content(content, url, content)
+            
+            preview_samples.append({
+                "url": url,
+                "original_content": content,
+                "processed_content": processed.get('processed_content', content),
+                "strategies_applied": processed.get('strategies_applied', []),
+                "code_examples": processed.get('code_examples', []),
+                "metadata": processed.get('metadata', {})
+            })
+        
+        return preview_samples
+        
+    except Exception as e:
+        st.error(f"Error generating preview: {e}")
+        return []
+
+
+def display_preview_samples(samples: List[dict]):
+    """Display preview samples to the user"""
+    
+    st.markdown("### 🔍 Content Processing Preview")
+    st.info("This preview shows how your content will be processed with the selected RAG strategies.")
+    
+    for i, sample in enumerate(samples):
+        with st.expander(f"Sample {i+1}: {sample['url']}", expanded=i == 0):
+            
+            col1, col2 = st.columns(2)
+            
+            with col1:
+                st.markdown("#### Original Content")
+                st.code(sample['original_content'][:500] + "..." if len(sample['original_content']) > 500 else sample['original_content'])
+            
+            with col2:
+                st.markdown("#### Processed Content")
+                processed_preview = sample['processed_content'][:500] + "..." if len(sample['processed_content']) > 500 else sample['processed_content']
+                if sample['processed_content'] != sample['original_content']:
+                    st.code(processed_preview)
+                else:
+                    st.info("No changes (no contextual processing applied)")
+            
+            # Show applied strategies
+            if sample['strategies_applied']:
+                st.markdown("#### Applied Strategies")
+                for strategy in sample['strategies_applied']:
+                    st.write(f"✅ {strategy.replace('_', ' ').title()}")
+            
+            # Show code examples if found
+            if sample['code_examples']:
+                st.markdown(f"#### Code Examples Found: {len(sample['code_examples'])}")
+                for j, code_ex in enumerate(sample['code_examples'][:2]):  # Show first 2
+                    with st.expander(f"Code Example {j+1} ({code_ex.get('language', 'unknown')})"):
+                        st.code(code_ex['code'][:300] + "..." if len(code_ex['code']) > 300 else code_ex['code'], 
+                                language=code_ex.get('language', 'text'))
+                        if code_ex.get('summary'):
+                            st.markdown(f"**Summary:** {code_ex['summary']}")
+            
+            # Show metadata
+            if sample['metadata']:
+                with st.expander("Metadata"):
+                    st.json(sample['metadata'])
+
+
 def execute_crawl(project_id: str, urls: List[str], config: dict):
     """Execute the crawling operation"""
     
@@ -267,18 +402,29 @@ def execute_crawl(project_id: str, urls: List[str], config: dict):
         # Start crawl in background (simulate async execution)
         st.session_state.active_crawl_job = job.job_id
         
+        # Show configuration summary
+        st.success(f"✅ Crawl job {job.job_id} created successfully!")
+        
+        with st.expander("Job Configuration", expanded=False):
+            st.json({
+                "job_id": job.job_id,
+                "urls_count": len(urls),
+                "max_depth": config['max_depth'],
+                "max_concurrent": config['max_concurrent'],
+                "rag_strategies": config['rag_strategies'],
+                "estimated_processing_time": f"{len(urls) * 2} - {len(urls) * 5} minutes"
+            })
+        
         # In a real implementation, you'd start this asynchronously
         # For now, we'll simulate by starting it immediately
-        asyncio.create_task(crawling_engine.start_crawl_job(job.job_id))
-        
-        st.success(f"✅ Crawl job {job.job_id} started successfully!")
-        st.info(f"📊 Processing {len(urls)} URLs with {config['max_concurrent']} concurrent sessions")
-        
-        time.sleep(1)  # Brief pause for user feedback
-        st.rerun()
+        if st.button("▶️ Confirm and Start Processing"):
+            asyncio.create_task(crawling_engine.start_crawl_job(job.job_id))
+            st.info(f"📊 Processing {len(urls)} URLs with {config['max_concurrent']} concurrent sessions")
+            time.sleep(1)  # Brief pause for user feedback
+            st.rerun()
         
     except Exception as e:
-        st.error(f"❌ Failed to start crawl: {e}")
+        st.error(f"❌ Failed to create crawl job: {e}")
 
 
 def pause_active_crawl(project_id: str):
@@ -353,10 +499,15 @@ def display_active_crawls(project_id: str):
                         st.write(f"**URLs to crawl:** {len(job.urls)}")
                         st.write(f"**Max depth:** {job.max_depth}")
                         st.write(f"**Concurrent sessions:** {job.max_concurrent}")
+                        st.write(f"**RAG strategies:** {', '.join(job.rag_strategies or [])}")
                     with col2:
                         st.write(f"**Started:** {job.started_at.strftime('%H:%M:%S') if job.started_at else 'Not started'}")
                         st.write(f"**Chunk size:** {job.chunk_size}")
-                        st.write(f"**RAG strategies:** {', '.join(job.rag_strategies or [])}")
+                        if job.rag_config:
+                            rag_info = f"Model: {job.rag_config.get('embedding_model', 'default')}"
+                            if job.rag_config.get('use_contextual_embeddings'):
+                                rag_info += f", Context: {job.rag_config.get('context_model', 'gpt-3.5-turbo')}"
+                            st.write(f"**RAG config:** {rag_info}")
                 
                 st.markdown("---")
 
@@ -386,13 +537,18 @@ def display_crawl_history(project_id: str):
             CrawlStatus.CANCELLED: "🛑"
         }.get(job.status, "❓")
         
+        # Show RAG strategies if available
+        rag_strategies = job.rag_strategies or ['vector_embeddings']
+        rag_display = ", ".join([s.replace('_', ' ').title() for s in rag_strategies])
+        
         history_data.append({
             "Job ID": job.job_id,
             "Timestamp": job.created_at.strftime("%Y-%m-%d %H:%M"),
             "URLs": len(job.urls),
             "Status": f"{status_icon} {job.status.value.title()}",
             "Duration": duration,
-            "Results": job.results_summary.get('successful', 0) if job.results_summary else 0
+            "Results": job.results_summary.get('successful', 0) if job.results_summary else 0,
+            "RAG Strategies": rag_display
         })
     
     # Display as table
@@ -428,6 +584,26 @@ def show_job_details(job):
     
     st.modal("Job Details")
     with st.container():
+        
+        # Show results summary if available
+        if job.results_summary:
+            st.markdown("#### Results Summary")
+            
+            col1, col2, col3 = st.columns(3)
+            with col1:
+                st.metric("Successful URLs", job.results_summary.get('successful', 0))
+            with col2:
+                st.metric("Total Chunks", job.results_summary.get('total_chunks', 0))
+            with col3:
+                st.metric("Code Examples", job.results_summary.get('total_code_examples', 0))
+            
+            if job.results_summary.get('rag_strategies_applied'):
+                st.markdown("#### RAG Strategies Applied")
+                for strategy in job.results_summary['rag_strategies_applied']:
+                    st.write(f"✅ {strategy.replace('_', ' ').title()}")
+        
+        # Show full job configuration
+        st.markdown("#### Full Configuration")
         st.json({
             "job_id": job.job_id,
             "project_id": job.project_id,
@@ -443,7 +619,8 @@ def show_job_details(job):
                 "chunk_size": job.chunk_size,
                 "include_patterns": job.include_patterns,
                 "exclude_patterns": job.exclude_patterns,
-                "rag_strategies": job.rag_strategies
+                "rag_strategies": job.rag_strategies,
+                "rag_config": job.rag_config
             },
             "results_summary": job.results_summary,
             "error_message": job.error_message
@@ -459,7 +636,8 @@ def rerun_crawl_job(job):
         'chunk_size': job.chunk_size,
         'include_patterns': job.include_patterns,
         'exclude_patterns': job.exclude_patterns,
-        'rag_strategies': job.rag_strategies
+        'rag_strategies': job.rag_strategies,
+        'rag_config': job.rag_config
     }
     
     execute_crawl(job.project_id, job.urls, config) 
