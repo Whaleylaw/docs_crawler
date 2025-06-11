@@ -4,7 +4,7 @@ Main Streamlit application entry point
 """
 
 import streamlit as st
-from streamlit_option_menu import option_menu
+from pages import home, project_management, crawl_content, search_interface, content_analysis
 import os
 import sys
 
@@ -26,26 +26,66 @@ def main():
     st.markdown("""
     <style>
     .main-header {
-        font-size: 2.5rem;
-        font-weight: bold;
-        color: #1f77b4;
-        text-align: center;
+        padding: 1rem 0;
+        border-bottom: 2px solid #f0f2f6;
         margin-bottom: 2rem;
     }
-    .sidebar-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        color: #1f77b4;
-        margin-bottom: 1rem;
+    
+    .sidebar .sidebar-content {
+        padding-top: 1rem;
     }
-    .status-badge {
-        padding: 0.25rem 0.5rem;
+    
+    .metric-card {
+        background-color: #f8f9fa;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        border-left: 4px solid #007bff;
+    }
+    
+    .success-banner {
+        background-color: #d4edda;
+        border-color: #c3e6cb;
+        color: #155724;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    .warning-banner {
+        background-color: #fff3cd;
+        border-color: #ffeaa7;
+        color: #856404;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 1rem 0;
+    }
+    
+    .info-card {
+        background-color: #e3f2fd;
+        padding: 1rem;
+        border-radius: 0.5rem;
+        margin: 0.5rem 0;
+    }
+    
+    .nav-button {
+        width: 100%;
+        margin: 0.25rem 0;
+        padding: 0.5rem;
+        text-align: left;
+        border: none;
+        background: transparent;
+        cursor: pointer;
         border-radius: 0.25rem;
-        font-size: 0.75rem;
-        font-weight: bold;
     }
-    .status-active { background-color: #d4edda; color: #155724; }
-    .status-inactive { background-color: #f8d7da; color: #721c24; }
+    
+    .nav-button:hover {
+        background-color: #f0f2f6;
+    }
+    
+    .nav-button.active {
+        background-color: #007bff;
+        color: white;
+    }
     </style>
     """, unsafe_allow_html=True)
     
@@ -55,49 +95,63 @@ def main():
     
     # Sidebar navigation
     with st.sidebar:
-        st.markdown('<div class="sidebar-title">Navigation</div>', unsafe_allow_html=True)
-        
-        selected = option_menu(
-            menu_title="Main Menu",
-            options=["Project Management", "Crawl Content", "Search Interface", "Administration"],
-            icons=["folder", "download", "search", "gear"],
-            menu_icon="list",
-            default_index=0,
-            styles={
-                "container": {"padding": "0!important", "background-color": "#fafafa"},
-                "icon": {"color": "#1f77b4", "font-size": "18px"},
-                "nav-link": {
-                    "font-size": "16px",
-                    "text-align": "left",
-                    "margin": "0px",
-                    "--hover-color": "#eee",
-                },
-                "nav-link-selected": {"background-color": "#1f77b4"},
-            }
-        )
-        
-        # System status in sidebar
+        st.title("🕷️ Crawl4AI Standalone")
         st.markdown("---")
-        st.markdown("### System Status")
-        col1, col2 = st.columns(2)
-        with col1:
-            st.markdown('<span class="status-badge status-active">Online</span>', unsafe_allow_html=True)
-        with col2:
-            st.markdown('<span class="status-badge status-active">Ready</span>', unsafe_allow_html=True)
+        
+        # Navigation menu
+        pages = {
+            "🏠 Home": "home",
+            "📁 Project Management": "project_management", 
+            "🕷️ Crawl Content": "crawl_content",
+            "🔍 Search Interface": "search_interface",
+            "📊 Content Analysis": "content_analysis"
+        }
+        
+        # Get current page from session state
+        if 'current_page' not in st.session_state:
+            st.session_state.current_page = 'home'
+        
+        # Create navigation buttons
+        for page_name, page_key in pages.items():
+            if st.button(page_name, key=f"nav_{page_key}", use_container_width=True):
+                st.session_state.current_page = page_key
+                st.rerun()
+        
+        st.markdown("---")
+        
+        # Application info
+        st.markdown("### 📋 Quick Info")
+        st.info("""
+        **Crawl4AI Standalone**
+        
+        A complete web crawling and RAG solution built with:
+        • 🚀 Streamlit UI
+        • 🕷️ Crawl4AI Engine  
+        • 🗄️ Supabase Storage
+        • 🧠 OpenAI Integration
+        • 📊 Advanced Analytics
+        """)
+        
+        # Version info
+        st.caption("v1.0.0 | Built with ❤️ for developers")
     
-    # Route to selected page
-    if selected == "Project Management":
-        from pages import project_management
+    # Main content area
+    current_page = st.session_state.current_page
+    
+    # Route to appropriate page
+    if current_page == 'home':
+        home.show()
+    elif current_page == 'project_management':
         project_management.show()
-    elif selected == "Crawl Content":
-        from pages import crawl_content
+    elif current_page == 'crawl_content':
         crawl_content.show()
-    elif selected == "Search Interface":
-        from pages import search_interface
+    elif current_page == 'search_interface':
         search_interface.show()
-    elif selected == "Administration":
-        from pages import administration
-        administration.show()
+    elif current_page == 'content_analysis':
+        content_analysis.show()
+    else:
+        # Default to home
+        home.show()
 
     # Footer
     st.markdown("---")

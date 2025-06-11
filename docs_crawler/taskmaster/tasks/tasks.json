@@ -80,75 +80,66 @@
     },
     {
       "id": "7",
-      "title": "Implement specialized code example search (Agentic RAG)",
-      "description": "Build the specialized search interface for finding and displaying code examples",
-      "details": "- Create code-specific query processing for natural language code pattern searches\n- Implement programming language filtering\n- Build context display showing code with surrounding documentation\n- Add AI-generated explanations of code functionality\n- Create specialized UI for code result display with syntax highlighting\n- Integrate with the agentic RAG processing from task 5",
-      "status": "pending",
-      "priority": "low",
-      "dependencies": [],
-      "testStrategy": "Test code search queries return relevant code examples with proper context",
-      "created": "2025-06-11",
-      "updated": "2025-06-11"
+      "title": "Content Preview and Analysis Tools",
+      "description": "Build content preview functionality, document analytics, content quality metrics, duplicate detection, and content export tools.",
+      "status": "done",
+      "priority": "medium",
+      "dependencies": [4, 6],
+      "estimated_hours": 14,
+      "tags": ["analysis", "preview", "content"]
     },
     {
       "id": "8",
-      "title": "Build administration and monitoring interface",
-      "description": "Create the admin interface for system monitoring and configuration management",
-      "details": "- Implement system monitoring dashboard with resource usage (storage, API calls, processing time)\n- Add performance metrics display (query response time, embedding generation speed)\n- Create error logging and troubleshooting interface\n- Build API key management system with secure storage and rotation\n- Add model selection interface for different LLM models\n- Implement configuration management for embedding models\n- Create usage analytics and reporting",
+      "title": "Advanced Configuration System",
+      "description": "Implement comprehensive configuration management, environment variable handling, model selection interface, and system preferences.",
       "status": "pending",
-      "priority": "low",
-      "dependencies": [],
-      "testStrategy": "Verify monitoring data is accurate and configuration changes take effect properly",
-      "created": "2025-06-11",
-      "updated": "2025-06-11"
+      "priority": "medium",
+      "dependencies": [1, 5],
+      "estimated_hours": 10,
+      "tags": ["configuration", "settings"]
     },
     {
       "id": "9",
-      "title": "Implement security and data protection",
-      "description": "Add comprehensive security measures and data protection features",
-      "details": "- Implement encryption at rest for all stored credentials and sensitive data\n- Ensure HTTPS encryption in transit for all communications\n- Add session-based authentication for multi-user scenarios\n- Build secure API key management with rotation capabilities\n- Implement configurable data retention policies\n- Add user consent mechanisms and data processing disclosure\n- Create right to deletion functionality for complete data removal",
+      "title": "Monitoring and Logging Dashboard",
+      "description": "Create monitoring dashboard with crawl statistics, system health metrics, error tracking, performance analytics, and detailed logging.",
       "status": "pending",
-      "priority": "medium",
-      "dependencies": [],
-      "testStrategy": "Conduct security audit to verify all data protection measures are properly implemented",
-      "created": "2025-06-11",
-      "updated": "2025-06-11"
+      "priority": "low",
+      "dependencies": [4, 6],
+      "estimated_hours": 12,
+      "tags": ["monitoring", "logging", "dashboard"]
     },
     {
       "id": "10",
-      "title": "Optimize performance and implement caching",
-      "description": "Implement performance optimizations to meet response time targets",
-      "details": "- Add caching layer (Redis or in-memory) for frequent queries\n- Implement query optimization and database indexing\n- Add streaming processing for large documents to prevent memory issues\n- Implement exponential backoff and queue management for API rate limits\n- Optimize vector search performance with proper indexing\n- Add connection pooling and resource management\n- Implement performance monitoring and alerting",
+      "title": "API Integration and Webhooks",
+      "description": "Build REST API endpoints for external integration, webhook support for crawl completion notifications, and API documentation.",
       "status": "pending",
-      "priority": "medium",
-      "dependencies": [],
-      "testStrategy": "Verify all performance targets are met: <2s page load, <3s search queries, >95% uptime",
-      "created": "2025-06-11",
-      "updated": "2025-06-11"
+      "priority": "low",
+      "dependencies": [4, 6],
+      "estimated_hours": 16,
+      "tags": ["api", "webhooks", "integration"]
     },
     {
       "id": "11",
-      "title": "Create deployment configuration and documentation",
-      "description": "Prepare the application for production deployment with proper documentation",
-      "details": "- Create Docker container configuration for containerized deployment\n- Set up deployment scripts for Streamlit Cloud\n- Add cloud platform deployment configurations (AWS/GCP/Azure)\n- Create comprehensive README with installation and setup instructions\n- Write API documentation and user guides\n- Add troubleshooting documentation\n- Create maintenance and update procedures\n- Implement health checks and monitoring endpoints",
+      "title": "Deployment and Containerization",
+      "description": "Create Docker containerization, deployment scripts, environment setup documentation, and production configuration templates.",
       "status": "pending",
       "priority": "low",
-      "dependencies": [],
-      "testStrategy": "Verify application deploys successfully in multiple environments and documentation is complete",
-      "created": "2025-06-11",
-      "updated": "2025-06-11"
+      "dependencies": [1, 2, 3, 4, 5, 6],
+      "estimated_hours": 8,
+      "tags": ["deployment", "docker", "production"]
     },
     {
       "id": "12",
-      "title": "Add error recovery and retry mechanisms",
-      "description": "Implement robust error handling and automatic recovery systems",
-      "details": "- Add automatic retry mechanisms with exponential backoff for failed operations\n- Implement comprehensive error logging and reporting\n- Build recovery procedures for interrupted crawling operations\n- Add graceful degradation for service outages\n- Implement circuit breaker patterns for external API calls\n- Create error notification system for critical failures\n- Add diagnostic tools for troubleshooting issues",
+      "title": "Testing Suite and Documentation",
+      "description": "Implement comprehensive testing suite, create user documentation, API documentation, and deployment guides.",
       "status": "pending",
       "priority": "medium",
-      "dependencies": [],
-      "testStrategy": "Test error scenarios and verify automatic recovery works properly",
-      "created": "2025-06-11",
-      "updated": "2025-06-11"
+      "dependencies": [1, 2, 3, 4, 5, 6],
+      "estimated_hours": 18,
+      "tags": ["testing", "documentation", "quality-assurance"]
     }
-  ]
+  ],
+  "completed_tasks": [1, 2, 3, 4, 5, 6, 7],
+  "total_estimated_hours": 156,
+  "completed_hours": 92
 }
