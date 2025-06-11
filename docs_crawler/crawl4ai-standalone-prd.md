@@ -1,0 +1,332 @@
+# Crawl4AI Standalone Application - Product Requirements Document
+
+## Executive Summary
+
+This document outlines the requirements for developing a standalone Streamlit application that transforms the existing MCP crawl4ai-rag server into a user-friendly web interface. The application will enable users to dynamically create Supabase projects, crawl websites, and perform RAG (Retrieval Augmented Generation) queries without manual configuration.
+
+## Current State Analysis
+
+### Existing MCP Server Capabilities
+- **Web Crawling**: Intelligent URL detection (sitemaps, text files, regular webpages)
+- **Content Processing**: Smart chunking, parallel processing, recursive crawling
+- **Vector Storage**: Supabase integration with pgvector for semantic search
+- **Advanced RAG Features**: 
+  - Contextual embeddings
+  - Hybrid search (vector + keyword)
+  - Agentic RAG for code examples
+  - Cross-encoder reranking
+- **Database Schema**: Complete with sources, crawled_pages, and code_examples tables
+
+### Current Limitations
+- Requires manual .env file configuration for each new project
+- MCP server setup complexity
+- No user interface for non-technical users
+- Static configuration prevents dynamic project management
+
+## Product Vision
+
+Create a web-based application that democratizes access to advanced web crawling and RAG capabilities by providing an intuitive interface for project creation, content crawling, and intelligent search.
+
+## Target Users
+
+### Primary Users
+- **Content Researchers**: Need to quickly index and search documentation
+- **AI Application Developers**: Building RAG systems for specific domains
+- **Technical Writers**: Creating knowledge bases from web content
+- **Data Scientists**: Experimenting with different embedding strategies
+
+### Secondary Users
+- **Educators**: Creating searchable course materials
+- **Enterprise Teams**: Building internal knowledge systems
+
+## Core Features
+
+### 1. Project Management Interface
+
+#### 1.1 Project Creation Workflow
+- **Input Form**: Simple URL input field with validation
+- **Project Naming**: Auto-generate project names from domain or allow custom naming
+- **Supabase Integration**: Automatic project creation via Supabase MCP server
+- **Cost Estimation**: Display estimated costs before project creation
+- **Progress Tracking**: Real-time status updates during project setup
+
+#### 1.2 Project Dashboard
+- **Project List**: View all created projects with metadata
+- **Project Status**: Active, paused, or archived projects
+- **Quick Actions**: Crawl new URLs, search existing content, export data
+- **Usage Statistics**: Storage used, documents indexed, search queries performed
+
+### 2. Web Crawling Engine
+
+#### 2.1 URL Processing
+- **Smart URL Detection**: Automatic identification of sitemaps, text files, and webpages
+- **Crawling Configuration**:
+  - Maximum depth (1-5 levels)
+  - Maximum concurrent sessions (5-50)
+  - Chunk size (1000-10000 characters)
+  - Include/exclude patterns
+- **Progress Monitoring**: Real-time crawling progress with URL status
+- **Error Handling**: Display failed URLs with error messages
+
+#### 2.2 Content Processing Options
+- **RAG Strategy Selection**:
+  - ✅ Contextual Embeddings (slower, higher accuracy)
+  - ✅ Hybrid Search (combines vector + keyword search)
+  - ✅ Agentic RAG (extracts code examples)
+  - ✅ Cross-encoder Reranking (improves relevance)
+- **Preview Mode**: Show sample chunks before full processing
+- **Batch Processing**: Queue multiple URLs for sequential processing
+
+### 3. Search and Retrieval Interface
+
+#### 3.1 Query Interface
+- **Simple Search**: Text input with instant results
+- **Advanced Filters**:
+  - Source domain filtering
+  - Content type (documentation, code examples)
+  - Similarity threshold
+  - Result count (5-50)
+- **Search History**: Previously executed queries with results
+
+#### 3.2 Results Display
+- **Relevance Scoring**: Visual similarity indicators
+- **Source Attribution**: Clear source URLs and metadata
+- **Content Preview**: Expandable chunks with highlighting
+- **Export Options**: Copy, download as JSON/CSV
+
+### 4. Code Example Search (Agentic RAG)
+
+#### 4.1 Specialized Code Search
+- **Code-Specific Queries**: Natural language queries for code patterns
+- **Language Filtering**: Filter by programming language
+- **Context Display**: Show code with surrounding documentation
+- **Summary Generation**: AI-generated explanations of code functionality
+
+### 5. Administration and Monitoring
+
+#### 5.1 System Monitoring
+- **Resource Usage**: Storage, API calls, processing time
+- **Performance Metrics**: Average query response time, embedding generation speed
+- **Error Logging**: Detailed logs for troubleshooting
+
+#### 5.2 Configuration Management
+- **API Key Management**: Secure storage and rotation of OpenAI/Supabase keys
+- **Model Selection**: Choose between different LLM models for summaries
+- **Embedding Model**: Future support for local/alternative embedding models
+
+## Technical Architecture
+
+### Backend Components
+
+#### 1. Streamlit Application Framework
+```python
+# Core application structure
+- app.py (main Streamlit app)
+- pages/
+  - 01_project_management.py
+  - 02_crawl_content.py
+  - 03_search_interface.py
+  - 04_administration.py
+- components/
+  - supabase_integration.py
+  - crawling_engine.py
+  - search_engine.py
+  - ui_components.py
+```
+
+#### 2. Supabase Integration Layer
+- **Project Creation**: Automated Supabase project setup via MCP server
+- **Database Initialization**: Automatic execution of crawled_pages.sql
+- **Connection Management**: Dynamic connection handling for multiple projects
+- **Credential Storage**: Secure storage of project URLs and service keys
+
+#### 3. Enhanced Crawling Engine
+- **Modular Architecture**: Reuse existing crawl4ai_mcp.py logic
+- **Configuration Interface**: Web-based parameter adjustment
+- **Progress Tracking**: WebSocket or polling for real-time updates
+- **Error Recovery**: Automatic retry mechanisms with exponential backoff
+
+#### 4. Search and RAG System
+- **Query Processing**: Enhanced query understanding and preprocessing
+- **Result Ranking**: Multiple ranking strategies (similarity, recency, source authority)
+- **Caching Layer**: Redis or in-memory caching for frequent queries
+- **Analytics**: Query logging and performance monitoring
+
+### Frontend Design
+
+#### 1. User Interface Principles
+- **Simplicity**: Clean, intuitive design focused on core workflows
+- **Responsiveness**: Mobile-friendly interface for various screen sizes
+- **Accessibility**: WCAG compliance for screen readers and keyboard navigation
+- **Performance**: Fast loading times and responsive interactions
+
+#### 2. Key UI Components
+- **Project Cards**: Visual project overview with key metrics
+- **Progress Indicators**: Real-time crawling and processing status
+- **Search Interface**: Google-like search with advanced options
+- **Results Grid**: Card-based results with expandable details
+
+### Data Models
+
+#### 1. Project Configuration
+```python
+@dataclass
+class ProjectConfig:
+    project_id: str
+    name: str
+    supabase_url: str
+    supabase_key: str  # Encrypted
+    created_at: datetime
+    last_crawled: datetime
+    total_documents: int
+    storage_used: int
+    rag_strategies: List[str]
+```
+
+#### 2. Crawl Job
+```python
+@dataclass
+class CrawlJob:
+    job_id: str
+    project_id: str
+    urls: List[str]
+    status: str  # pending, running, completed, failed
+    progress: float  # 0.0 to 1.0
+    created_at: datetime
+    completed_at: Optional[datetime]
+    error_message: Optional[str]
+    results_summary: Dict[str, Any]
+```
+
+## Implementation Phases
+
+### Phase 1: Core Infrastructure (2-3 weeks)
+- **Deliverables**:
+  - Basic Streamlit application structure
+  - Supabase MCP integration for project creation
+  - Database schema initialization
+  - Simple URL crawling interface
+- **Success Criteria**:
+  - Can create new Supabase projects programmatically
+  - Can crawl single URLs and store in database
+  - Basic search functionality works
+
+### Phase 2: Enhanced Crawling (2-3 weeks)
+- **Deliverables**:
+  - All RAG strategy options (contextual, hybrid, agentic, reranking)
+  - Batch URL processing
+  - Progress monitoring and error handling
+  - Configuration interface for crawling parameters
+- **Success Criteria**:
+  - Can process multiple URLs with different strategies
+  - Real-time progress tracking works
+  - Error recovery mechanisms function properly
+
+### Phase 3: Advanced Search and UI (2-3 weeks)
+- **Deliverables**:
+  - Advanced search interface with filtering
+  - Code example search functionality
+  - Results export capabilities
+  - Polished user interface design
+- **Success Criteria**:
+  - Search performance meets requirements (<2s response time)
+  - UI is intuitive for non-technical users
+  - Export functionality works for all data types
+
+### Phase 4: Administration and Optimization (1-2 weeks)
+- **Deliverables**:
+  - System monitoring dashboard
+  - Performance optimization
+  - Security hardening
+  - Documentation and deployment guides
+- **Success Criteria**:
+  - Application is production-ready
+  - Performance meets scalability requirements
+  - Security audit passes
+
+## Security Requirements
+
+### Data Protection
+- **Encryption at Rest**: All stored credentials and sensitive data
+- **Encryption in Transit**: HTTPS for all communications
+- **Access Control**: Session-based authentication for multi-user scenarios
+- **API Key Management**: Secure storage and rotation capabilities
+
+### Privacy Considerations
+- **Data Retention**: Configurable retention policies for crawled content
+- **User Consent**: Clear disclosure of data collection and processing
+- **Right to Deletion**: Ability to completely remove projects and data
+
+## Performance Requirements
+
+### Response Time Targets
+- **Page Load**: < 2 seconds for all application pages
+- **Search Queries**: < 3 seconds for typical queries (5-10 results)
+- **Crawling**: Process 50-100 pages per minute per worker
+- **Project Creation**: < 60 seconds for new Supabase project setup
+
+### Scalability Requirements
+- **Concurrent Users**: Support 10-50 simultaneous users
+- **Project Limits**: No hard limit on number of projects per user
+- **Storage**: Efficiently handle projects with 1M+ documents
+- **API Rate Limits**: Respect OpenAI and Supabase rate limits
+
+## Success Metrics
+
+### User Experience Metrics
+- **Time to First Result**: < 5 minutes from URL input to searchable content
+- **Search Satisfaction**: >90% of searches return relevant results
+- **User Retention**: >70% of users return within 7 days
+- **Error Rate**: <5% of crawling operations fail
+
+### Technical Metrics
+- **System Uptime**: >99.5% availability
+- **API Response Time**: 95th percentile < 3 seconds
+- **Data Accuracy**: >95% of crawled content accurately indexed
+- **Resource Efficiency**: <$10/month per active project in cloud costs
+
+## Risk Assessment
+
+### Technical Risks
+- **Rate Limiting**: OpenAI/Supabase API limits could slow processing
+  - **Mitigation**: Implement exponential backoff and queue management
+- **Memory Usage**: Large documents could cause memory issues
+  - **Mitigation**: Streaming processing and chunk-based operations
+- **Database Performance**: Vector searches could be slow with large datasets
+  - **Mitigation**: Proper indexing and query optimization
+
+### Business Risks
+- **API Cost Overruns**: Unexpected usage spikes could increase costs
+  - **Mitigation**: Usage monitoring and budget alerts
+- **Compliance Issues**: Web scraping may violate terms of service
+  - **Mitigation**: Respect robots.txt and implement rate limiting
+
+## Dependencies and Integrations
+
+### Required Services
+- **Supabase**: Database hosting and vector search capabilities
+- **OpenAI API**: Embeddings and LLM services for summarization
+- **Streamlit Cloud**: Application hosting (or alternative deployment)
+
+### Optional Integrations
+- **Local LLM Support**: Future integration with Ollama for on-premises deployment
+- **Alternative Embedding Models**: Support for Sentence Transformers, etc.
+- **Export Integrations**: Direct export to Google Docs, Notion, etc.
+
+## Deployment and Maintenance
+
+### Deployment Options
+1. **Streamlit Cloud**: Simplest deployment for quick iteration
+2. **Docker Container**: For containerized environments
+3. **Cloud Platforms**: AWS/GCP/Azure for enterprise deployment
+
+### Maintenance Considerations
+- **Dependency Updates**: Regular updates to crawl4ai, Supabase client
+- **Model Updates**: Adaptation to new OpenAI model versions
+- **Security Patches**: Regular security updates and vulnerability scanning
+
+## Conclusion
+
+This standalone Streamlit application will democratize access to advanced web crawling and RAG capabilities, removing the technical barriers of the current MCP server implementation. By providing a user-friendly interface for project management, content crawling, and intelligent search, the application will enable users to quickly build and query domain-specific knowledge bases without manual configuration.
+
+The phased implementation approach ensures rapid delivery of core functionality while allowing for iterative improvements based on user feedback. The modular architecture will support future enhancements and integrations, making this a robust foundation for advanced RAG applications.
