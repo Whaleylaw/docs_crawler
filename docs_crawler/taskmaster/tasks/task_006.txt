@@ -1,0 +1,17 @@
+# Task ID: 6
+# Title: Create search and retrieval interface
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Build the main search interface with simple and advanced query capabilities
+# Details:
+- Implement simple search with text input and instant results
+- Build advanced filters: source domain, content type, similarity threshold, result count (5-50)
+- Create search history functionality
+- Add relevance scoring with visual indicators
+- Implement source attribution with clear URLs and metadata
+- Build content preview with expandable chunks and highlighting
+- Add export options (copy, JSON/CSV download)
+
+# Test Strategy:
+Verify search returns relevant results within performance targets (<3s response time)

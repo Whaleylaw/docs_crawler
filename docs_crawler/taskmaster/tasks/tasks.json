@@ -1,0 +1,154 @@
+{
+  "metadata": {
+    "version": "1.0.0",
+    "created": "2025-06-11",
+    "project": "Crawl4AI Standalone Application",
+    "description": "Streamlit application that transforms the existing MCP crawl4ai-rag server into a user-friendly web interface"
+  },
+  "tasks": [
+    {
+      "id": "1",
+      "title": "Set up basic Streamlit application structure",
+      "description": "Create the foundational Streamlit application structure with main app.py and organized pages directory",
+      "details": "- ✅ Create app.py as the main Streamlit application entry point\n- ✅ Set up pages/ directory with: project_management.py, crawl_content.py, search_interface.py, administration.py\n- ✅ Create components/ directory for: supabase_integration.py, crawling_engine.py, search_engine.py, ui_components.py\n- ✅ Set up basic navigation and page routing with streamlit-option-menu\n- ✅ Create requirements.txt with initial dependencies (streamlit, supabase, openai, plotly, etc.)\n- ✅ Implement beautiful UI with custom CSS and responsive design\n- ✅ Add comprehensive mock interfaces for all major features",
+      "status": "done",
+      "priority": "high",
+      "dependencies": [],
+      "testStrategy": "Verify that Streamlit app runs without errors and all pages are accessible through navigation",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "2",
+      "title": "Implement Supabase MCP integration for project creation",
+      "description": "Build the Supabase integration layer to enable dynamic project creation via MCP server",
+      "details": "- Create supabase_integration.py component\n- Implement ProjectConfig dataclass for project metadata\n- Build functions for automated Supabase project setup via MCP server\n- Implement database schema initialization (crawled_pages.sql execution)\n- Add connection management for multiple projects\n- Implement secure credential storage for project URLs and service keys",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "testStrategy": "Test creating a new Supabase project programmatically and verify database schema is properly initialized",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "3",
+      "title": "Create project management interface",
+      "description": "Build the project management UI for creating, viewing, and managing multiple projects",
+      "details": "- Implement project creation workflow with URL input validation\n- Add project naming functionality (auto-generate from domain or custom)\n- Create project dashboard with project list, status, and metadata\n- Build project cards showing key metrics (storage used, documents indexed, etc.)\n- Add quick actions for each project (crawl URLs, search content, export data)\n- Implement cost estimation display before project creation\n- Add progress tracking for project setup with real-time status updates",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "testStrategy": "Verify project creation workflow works end-to-end and dashboard displays projects correctly",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "4",
+      "title": "Build enhanced crawling engine",
+      "description": "Develop the core web crawling functionality with smart URL detection and configurable options",
+      "details": "- Create crawling_engine.py component reusing existing crawl4ai_mcp.py logic\n- Implement smart URL detection (sitemaps, text files, regular webpages)\n- Add configurable crawling options: max depth (1-5), concurrent sessions (5-50), chunk size (1000-10000)\n- Build include/exclude pattern functionality\n- Implement progress monitoring with real-time URL status updates\n- Add comprehensive error handling with failed URL reporting\n- Create CrawlJob dataclass for job management",
+      "status": "pending",
+      "priority": "high",
+      "dependencies": [],
+      "testStrategy": "Test crawling various URL types and verify configuration options work correctly",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "5",
+      "title": "Implement RAG strategy selection system",
+      "description": "Build the system for selecting and configuring different RAG processing strategies",
+      "details": "- Implement contextual embeddings option (slower, higher accuracy)\n- Add hybrid search capability (vector + keyword search)\n- Build agentic RAG for code example extraction\n- Implement cross-encoder reranking for improved relevance\n- Create preview mode to show sample chunks before full processing\n- Add batch processing functionality for multiple URLs\n- Build configuration interface for strategy selection",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "testStrategy": "Test each RAG strategy independently and verify they process content correctly",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "6",
+      "title": "Create search and retrieval interface",
+      "description": "Build the main search interface with simple and advanced query capabilities",
+      "details": "- Implement simple search with text input and instant results\n- Build advanced filters: source domain, content type, similarity threshold, result count (5-50)\n- Create search history functionality\n- Add relevance scoring with visual indicators\n- Implement source attribution with clear URLs and metadata\n- Build content preview with expandable chunks and highlighting\n- Add export options (copy, JSON/CSV download)",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "testStrategy": "Verify search returns relevant results within performance targets (<3s response time)",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "7",
+      "title": "Implement specialized code example search (Agentic RAG)",
+      "description": "Build the specialized search interface for finding and displaying code examples",
+      "details": "- Create code-specific query processing for natural language code pattern searches\n- Implement programming language filtering\n- Build context display showing code with surrounding documentation\n- Add AI-generated explanations of code functionality\n- Create specialized UI for code result display with syntax highlighting\n- Integrate with the agentic RAG processing from task 5",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [],
+      "testStrategy": "Test code search queries return relevant code examples with proper context",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "8",
+      "title": "Build administration and monitoring interface",
+      "description": "Create the admin interface for system monitoring and configuration management",
+      "details": "- Implement system monitoring dashboard with resource usage (storage, API calls, processing time)\n- Add performance metrics display (query response time, embedding generation speed)\n- Create error logging and troubleshooting interface\n- Build API key management system with secure storage and rotation\n- Add model selection interface for different LLM models\n- Implement configuration management for embedding models\n- Create usage analytics and reporting",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [],
+      "testStrategy": "Verify monitoring data is accurate and configuration changes take effect properly",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "9",
+      "title": "Implement security and data protection",
+      "description": "Add comprehensive security measures and data protection features",
+      "details": "- Implement encryption at rest for all stored credentials and sensitive data\n- Ensure HTTPS encryption in transit for all communications\n- Add session-based authentication for multi-user scenarios\n- Build secure API key management with rotation capabilities\n- Implement configurable data retention policies\n- Add user consent mechanisms and data processing disclosure\n- Create right to deletion functionality for complete data removal",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "testStrategy": "Conduct security audit to verify all data protection measures are properly implemented",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "10",
+      "title": "Optimize performance and implement caching",
+      "description": "Implement performance optimizations to meet response time targets",
+      "details": "- Add caching layer (Redis or in-memory) for frequent queries\n- Implement query optimization and database indexing\n- Add streaming processing for large documents to prevent memory issues\n- Implement exponential backoff and queue management for API rate limits\n- Optimize vector search performance with proper indexing\n- Add connection pooling and resource management\n- Implement performance monitoring and alerting",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "testStrategy": "Verify all performance targets are met: <2s page load, <3s search queries, >95% uptime",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "11",
+      "title": "Create deployment configuration and documentation",
+      "description": "Prepare the application for production deployment with proper documentation",
+      "details": "- Create Docker container configuration for containerized deployment\n- Set up deployment scripts for Streamlit Cloud\n- Add cloud platform deployment configurations (AWS/GCP/Azure)\n- Create comprehensive README with installation and setup instructions\n- Write API documentation and user guides\n- Add troubleshooting documentation\n- Create maintenance and update procedures\n- Implement health checks and monitoring endpoints",
+      "status": "pending",
+      "priority": "low",
+      "dependencies": [],
+      "testStrategy": "Verify application deploys successfully in multiple environments and documentation is complete",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    },
+    {
+      "id": "12",
+      "title": "Add error recovery and retry mechanisms",
+      "description": "Implement robust error handling and automatic recovery systems",
+      "details": "- Add automatic retry mechanisms with exponential backoff for failed operations\n- Implement comprehensive error logging and reporting\n- Build recovery procedures for interrupted crawling operations\n- Add graceful degradation for service outages\n- Implement circuit breaker patterns for external API calls\n- Create error notification system for critical failures\n- Add diagnostic tools for troubleshooting issues",
+      "status": "pending",
+      "priority": "medium",
+      "dependencies": [],
+      "testStrategy": "Test error scenarios and verify automatic recovery works properly",
+      "created": "2025-06-11",
+      "updated": "2025-06-11"
+    }
+  ]
+}

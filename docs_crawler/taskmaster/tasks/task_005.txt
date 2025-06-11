@@ -1,0 +1,17 @@
+# Task ID: 5
+# Title: Implement RAG strategy selection system
+# Status: pending
+# Dependencies: None
+# Priority: medium
+# Description: Build the system for selecting and configuring different RAG processing strategies
+# Details:
+- Implement contextual embeddings option (slower, higher accuracy)
+- Add hybrid search capability (vector + keyword search)
+- Build agentic RAG for code example extraction
+- Implement cross-encoder reranking for improved relevance
+- Create preview mode to show sample chunks before full processing
+- Add batch processing functionality for multiple URLs
+- Build configuration interface for strategy selection
+
+# Test Strategy:
+Test each RAG strategy independently and verify they process content correctly

@@ -1,0 +1,17 @@
+# Task ID: 4
+# Title: Build enhanced crawling engine
+# Status: pending
+# Dependencies: None
+# Priority: high
+# Description: Develop the core web crawling functionality with smart URL detection and configurable options
+# Details:
+- Create crawling_engine.py component reusing existing crawl4ai_mcp.py logic
+- Implement smart URL detection (sitemaps, text files, regular webpages)
+- Add configurable crawling options: max depth (1-5), concurrent sessions (5-50), chunk size (1000-10000)
+- Build include/exclude pattern functionality
+- Implement progress monitoring with real-time URL status updates
+- Add comprehensive error handling with failed URL reporting
+- Create CrawlJob dataclass for job management
+
+# Test Strategy:
+Test crawling various URL types and verify configuration options work correctly
