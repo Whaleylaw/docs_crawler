@@ -1,6 +1,6 @@
 # Task ID: 2
 # Title: Implement Supabase MCP integration for project creation
-# Status: pending
+# Status: done
 # Dependencies: None
 # Priority: high
 # Description: Build the Supabase integration layer to enable dynamic project creation via MCP server
