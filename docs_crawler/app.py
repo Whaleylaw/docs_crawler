@@ -4,7 +4,7 @@ Main Streamlit application entry point
 """
 
 import streamlit as st
-from pages import home, project_management, crawl_content, search_interface, content_analysis
+from pages import home, project_management, crawl_content, search_interface, content_analysis, settings, monitoring, api_management
 import os
 import sys
 
@@ -104,7 +104,10 @@ def main():
             "📁 Project Management": "project_management", 
             "🕷️ Crawl Content": "crawl_content",
             "🔍 Search Interface": "search_interface",
-            "📊 Content Analysis": "content_analysis"
+            "📊 Content Analysis": "content_analysis",
+            "📈 Monitoring": "monitoring",
+            "🔌 API Management": "api_management",
+            "⚙️ Settings": "settings"
         }
         
         # Get current page from session state
@@ -149,6 +152,12 @@ def main():
         search_interface.show()
     elif current_page == 'content_analysis':
         content_analysis.show()
+    elif current_page == 'monitoring':
+        monitoring.show()
+    elif current_page == 'api_management':
+        api_management.show()
+    elif current_page == 'settings':
+        settings.show()
     else:
         # Default to home
         home.show()
